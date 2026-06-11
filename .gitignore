@@ -1,0 +1,10 @@
+.env
+*.pyc
+__pycache__/
+.pytest_cache/
+backend/.deps/
+backend/leadhunter.db
+extension/node_modules/
+extension/dist/
+extension/.vite/
+extension/*.tsbuildinfo

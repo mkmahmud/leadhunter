@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "AI Founder Intent Leads",
+  "description": "Discover high-intent founders and decision makers looking for technical help.",
+  "version": "0.1.0",
+  "permissions": ["sidePanel", "storage", "downloads"],
+  "host_permissions": ["http://localhost:8000/*", "https://*/"],
+  "background": {
+    "service_worker": "src/background.ts",
+    "type": "module"
+  },
+  "side_panel": {
+    "default_path": "index.html"
+  },
+  "action": {
+    "default_title": "Founder Intent Leads"
+  }
+}

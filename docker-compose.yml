@@ -1,0 +1,54 @@
+services:
+  api:
+    build: ./backend
+    environment:
+      APP_ENV: local
+      DATABASE_URL: postgresql+asyncpg://leadhunter:leadhunter@postgres:5432/leadhunter
+      REDIS_URL: redis://redis:6379/0
+      JWT_SECRET: replace-with-a-long-random-secret
+      CORS_ORIGINS: http://localhost:5173,chrome-extension://*
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "8000:8000"
+
+  worker:
+    build: ./backend
+    command: celery -A app.worker.celery_app worker --loglevel=INFO
+    environment:
+      APP_ENV: local
+      DATABASE_URL: postgresql+asyncpg://leadhunter:leadhunter@postgres:5432/leadhunter
+      REDIS_URL: redis://redis:6379/0
+      JWT_SECRET: replace-with-a-long-random-secret
+    depends_on:
+      - postgres
+      - redis
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: leadhunter
+      POSTGRES_USER: leadhunter
+      POSTGRES_PASSWORD: leadhunter
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  nginx:
+    image: nginx:1.27-alpine
+    volumes:
+      - ./infra/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
