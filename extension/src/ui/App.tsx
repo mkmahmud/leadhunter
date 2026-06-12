@@ -9,7 +9,7 @@ import { ResultsTable } from "./ResultsTable";
 import { SearchForm } from "./SearchForm";
 
 export function App() {
-  const { data, refetch } = useQuery({ queryKey: ["leads"], queryFn: getLeads });
+  const { refetch } = useQuery({ queryKey: ["leads"], queryFn: getLeads, enabled: false });
   const jobId = useSearchStore((state) => state.jobId);
   const liveLeads = useSearchStore((state) => state.liveLeads);
   const addLead = useSearchStore((state) => state.addLead);
@@ -37,11 +37,7 @@ export function App() {
     return () => events.close();
   }, [addLead, jobId, refetch, setError, setStatus]);
 
-  const leads = useMemo(() => {
-    const persisted = data?.items ?? [];
-    const merged = new Map([...liveLeads, ...persisted].map((lead) => [lead.id, lead]));
-    return [...merged.values()].sort((a, b) => b.lead_score - a.lead_score);
-  }, [data?.items, liveLeads]);
+  const leads = useMemo(() => [...liveLeads].sort((a, b) => b.lead_score - a.lead_score), [liveLeads]);
 
   return (
     <main className="grid min-h-screen grid-cols-[380px_1fr] bg-background text-foreground">
@@ -59,6 +55,7 @@ export function App() {
             <div className="text-sm font-semibold">{leads.length.toLocaleString()} leads</div>
             <div className="text-xs capitalize text-muted">Status: {status}</div>
             {error && <div className="mt-1 max-w-[560px] text-xs font-medium text-red-700">{error}</div>}
+            {!leads.length && !error && <div className="mt-1 text-xs text-muted">Run a search to populate results.</div>}
           </div>
           <div className="flex gap-2">
             <IconButton title="Refresh leads" onClick={() => void refetch()}>

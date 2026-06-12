@@ -8,6 +8,9 @@ from app.core.config import settings
 
 class CSRFMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: Callable[[Request], Awaitable[Response]]) -> Response:
+        if settings.app_env == "local":
+            return await call_next(request)
+
         if request.method in {"POST", "PUT", "PATCH", "DELETE"}:
             token = request.headers.get("x-csrf-token")
             if token != settings.csrf_token:

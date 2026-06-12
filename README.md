@@ -16,13 +16,14 @@ Production-shaped Chrome Extension and FastAPI platform for discovering founders
 
 ```bash
 cd backend
-python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
-The backend defaults to local SQLite if `DATABASE_URL` is not set.
+Local development uses SQLite by default, so the API starts without a running Postgres instance.
+
+If `.venv` does not exist yet, create it first with `python -m venv .venv`. If that command fails because `.venv` already exists, skip creation and just activate the existing environment. If the environment is corrupted, delete the `.venv` folder and recreate it.
 
 For real platform data, read [LOCAL_SETUP.md](LOCAL_SETUP.md). Broad web platforms require `BRAVE_SEARCH_API_KEY` or `SERPAPI_API_KEY`.
 

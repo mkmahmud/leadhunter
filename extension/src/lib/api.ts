@@ -16,7 +16,11 @@ export async function token(): Promise<string> {
   return data.access_token;
 }
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
+async function clearToken(): Promise<void> {
+  await chrome.storage.local.remove("accessToken");
+}
+
+async function requestOnce<T>(path: string, init?: RequestInit): Promise<Response> {
   const accessToken = await token();
   const response = await fetch(`${API_BASE}${path}`, {
     ...init,
@@ -27,6 +31,15 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
       ...init?.headers
     }
   });
+  return response;
+}
+
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  let response = await requestOnce<T>(path, init);
+  if (response.status === 401) {
+    await clearToken();
+    response = await requestOnce<T>(path, init);
+  }
   if (!response.ok) {
     throw new Error(await response.text());
   }

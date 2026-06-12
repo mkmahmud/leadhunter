@@ -1,3 +1,4 @@
+import json
 import re
 
 from app.core.config import settings
@@ -13,19 +14,27 @@ class AILeadAnalyzer:
     async def _assess_with_openai(self, lead: RawLead) -> AILeadAssessment:
         from openai import AsyncOpenAI
 
-        client = AsyncOpenAI(api_key=settings.openai_api_key)
-        response = await client.responses.parse(
-            model="gpt-4.1-mini",
-            input=[
-                {
-                    "role": "system",
-                    "content": "Extract decision-maker role, buying intent, and concrete technical need from public lead posts.",
-                },
-                {"role": "user", "content": lead.model_dump_json()},
-            ],
-            text_format=AILeadAssessment,
-        )
-        return response.output_parsed
+        try:
+            client = AsyncOpenAI(api_key=settings.openai_api_key)
+            response = await client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {
+                        "role": "system",
+                        "content": (
+                            "Extract decision-maker role, buying intent, and concrete technical need from public lead posts. "
+                            "Return only valid JSON with these keys: decision_maker_role, buying_signal, need, intent_summary, "
+                            "mentioned_budget, mentioned_urgency, mentioned_timeline, explicit_hiring_signal."
+                        ),
+                    },
+                    {"role": "user", "content": lead.model_dump_json()},
+                ],
+                response_format={"type": "json_object"},
+            )
+            content = response.choices[0].message.content or "{}"
+            return AILeadAssessment.model_validate(json.loads(content))
+        except Exception:
+            return self._assess_heuristically(lead)
 
     def _assess_heuristically(self, lead: RawLead) -> AILeadAssessment:
         text = f"{lead.role} {lead.post_content}".lower()

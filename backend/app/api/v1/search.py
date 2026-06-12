@@ -5,7 +5,7 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import get_current_user
-from app.db.session import AsyncSessionLocal, get_session
+from app.db import session as db_session
 from app.repositories.search_jobs import SearchJobRepository
 from app.schemas.auth import TokenPayload
 from app.schemas.leads import SearchJobResponse, SearchRequest, SearchStatusResponse
@@ -17,7 +17,7 @@ router = APIRouter()
 
 
 async def run_search_job(job_id: str, request: SearchRequest) -> None:
-    async with AsyncSessionLocal() as session:
+    async with db_session.AsyncSessionLocal() as session:
         await SearchService(session).run(job_id, request)
 
 
@@ -25,7 +25,7 @@ async def run_search_job(job_id: str, request: SearchRequest) -> None:
 async def start_search(
     request: SearchRequest,
     background_tasks: BackgroundTasks,
-    session: AsyncSession = Depends(get_session),
+    session: AsyncSession = Depends(db_session.get_session),
     _: TokenPayload = Depends(get_current_user),
 ) -> SearchJobResponse:
     repo = SearchJobRepository(session)
@@ -36,7 +36,7 @@ async def start_search(
 
 
 @router.get("/{job_id}", response_model=SearchStatusResponse)
-async def status(job_id: str, session: AsyncSession = Depends(get_session), _: TokenPayload = Depends(get_current_user)) -> SearchStatusResponse:
+async def status(job_id: str, session: AsyncSession = Depends(db_session.get_session), _: TokenPayload = Depends(get_current_user)) -> SearchStatusResponse:
     job = await SearchJobRepository(session).get(job_id)
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
