@@ -3,12 +3,18 @@
   "name": "AI Founder Intent Leads",
   "description": "Discover high-intent founders and decision makers looking for technical help.",
   "version": "0.1.0",
-  "permissions": ["sidePanel", "storage", "downloads"],
+  "permissions": ["sidePanel", "storage", "downloads", "activeTab", "scripting", "tabs"],
   "host_permissions": ["http://localhost:8000/*", "https://*/"],
   "background": {
     "service_worker": "assets/background.js",
     "type": "module"
   },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["assets/content.js"]
+    }
+  ],
   "side_panel": {
     "default_path": "index.html"
   },

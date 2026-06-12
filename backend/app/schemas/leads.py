@@ -119,6 +119,16 @@ class RawLead(BaseModel):
     post_date: datetime | None = None
 
 
+class LeadIngestRequest(BaseModel):
+    items: list[RawLead] = Field(default_factory=list, max_length=200)
+
+
+class LeadIngestResponse(BaseModel):
+    items: list[LeadRead]
+    ingested: int
+    skipped: int
+
+
 class AILeadAssessment(BaseModel):
     decision_maker_role: Literal["Founder", "Co-Founder", "CEO", "CTO", "Owner", "Director", "VP", "Manager", "Employee", "Unknown"]
     buying_signal: Literal["High Intent", "Medium Intent", "Low Intent", "No Intent"]

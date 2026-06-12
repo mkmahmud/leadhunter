@@ -5,6 +5,7 @@ Production-shaped Chrome Extension and FastAPI platform for discovering founders
 ## What Is Included
 
 - Chrome Manifest V3 extension with a React 19 side panel UI.
+- Free current-page capture mode that extracts visible public posts from the tab you opened.
 - FastAPI backend with typed request/response schemas.
 - Per-platform scraper adapter folders for Reddit, LinkedIn, X/Twitter, Indie Hackers, Product Hunt, Medium, GitHub, Stack Overflow, YouTube, Facebook, startup communities, Hacker News, public blogs, and company blogs.
 - ToS-safe collection model: approved APIs, official API tokens, or indexed public search provider data only. No dummy data is returned.
@@ -25,7 +26,7 @@ Local development uses SQLite by default, so the API starts without a running Po
 
 If `.venv` does not exist yet, create it first with `python -m venv .venv`. If that command fails because `.venv` already exists, skip creation and just activate the existing environment. If the environment is corrupted, delete the `.venv` folder and recreate it.
 
-For real platform data, read [LOCAL_SETUP.md](LOCAL_SETUP.md). Broad web platforms require `BRAVE_SEARCH_API_KEY` or `SERPAPI_API_KEY`.
+For free local scraping from pages you open, read [LOCAL_SETUP.md](LOCAL_SETUP.md). Broad backend API search still requires `BRAVE_SEARCH_API_KEY` or `SERPAPI_API_KEY`.
 
 ## Local Extension
 
@@ -80,5 +81,6 @@ The scraper architecture intentionally isolates every platform and avoids bypass
 - Replace the local auth shortcut with a real user repository and password verification.
 - Add Alembic revision files for managed migrations.
 - Add richer native adapters for each platform where official APIs are available.
+- Add platform-specific content extractors for more accurate current-page capture.
 - Move long-running jobs fully into Celery instead of FastAPI background tasks.
 - Add Playwright E2E coverage for the extension and integration tests for search jobs.

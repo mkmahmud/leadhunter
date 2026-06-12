@@ -168,7 +168,7 @@ export function SearchForm() {
       <div className="sticky bottom-0 flex gap-2 border-t border-border bg-panel p-4">
         <Button className="flex-1" disabled={formState.isSubmitting}>
           <Play className="size-4" />
-          Search
+          API Search
         </Button>
         <Button type="button" className="bg-accent px-3" onClick={() => reset()}>
           <RotateCcw className="size-4" />

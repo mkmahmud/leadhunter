@@ -9,6 +9,7 @@ type SearchState = {
   status: "idle" | "queued" | "running" | "completed" | "failed";
   setJob: (jobId: string, status: SearchState["status"]) => void;
   addLead: (lead: Lead) => void;
+  addLeads: (leads: Lead[]) => void;
   setStatus: (status: SearchState["status"]) => void;
   setError: (error: string | null) => void;
 };
@@ -20,6 +21,11 @@ export const useSearchStore = create<SearchState>((set) => ({
   status: "idle",
   setJob: (jobId, status) => set({ jobId, status, liveLeads: [], error: null }),
   addLead: (lead) => set((state) => ({ liveLeads: [lead, ...state.liveLeads.filter((item) => item.id !== lead.id)] })),
+  addLeads: (leads) =>
+    set((state) => {
+      const merged = new Map([...leads, ...state.liveLeads].map((lead) => [lead.id, lead]));
+      return { liveLeads: [...merged.values()] };
+    }),
   setStatus: (status) => set({ status }),
   setError: (error) => set({ error })
 }));

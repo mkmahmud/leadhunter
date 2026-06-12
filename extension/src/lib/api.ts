@@ -1,4 +1,4 @@
-import type { Lead, SearchPayload } from "./types";
+import type { CapturedLead, Lead, SearchPayload } from "./types";
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? "http://localhost:8000/api";
 const CSRF_TOKEN = import.meta.env.VITE_CSRF_TOKEN ?? "local-csrf-token";
@@ -55,6 +55,13 @@ export async function startSearch(payload: SearchPayload) {
 
 export async function getLeads() {
   return request<{ items: Lead[]; total: number; page: number; page_size: number }>("/leads?page_size=100");
+}
+
+export async function ingestCapturedLeads(items: CapturedLead[], minimumLeadScore = 0) {
+  return request<{ items: Lead[]; ingested: number; skipped: number }>(`/leads/ingest?minimum_lead_score=${minimumLeadScore}`, {
+    method: "POST",
+    body: JSON.stringify({ items })
+  });
 }
 
 export function createJobEvents(jobId: string) {

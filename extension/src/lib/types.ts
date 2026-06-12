@@ -38,6 +38,22 @@ export type Lead = {
   created_at: string;
 };
 
+export type CapturedLead = {
+  name?: string;
+  role?: string;
+  company?: string;
+  website?: string;
+  linkedin?: string;
+  email?: string;
+  phone?: string;
+  location?: string;
+  industry?: string;
+  platform: string;
+  post_url?: string;
+  post_content: string;
+  post_date?: string | null;
+};
+
 export type SearchPayload = {
   platforms: Platform[];
   date_range: {
