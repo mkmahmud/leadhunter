@@ -6,7 +6,13 @@ services:
       DATABASE_URL: postgresql+asyncpg://leadhunter:leadhunter@postgres:5432/leadhunter
       REDIS_URL: redis://redis:6379/0
       JWT_SECRET: replace-with-a-long-random-secret
+      CSRF_TOKEN: local-csrf-token
       CORS_ORIGINS: http://localhost:5173,chrome-extension://*
+      SEARCH_PROVIDER: ${SEARCH_PROVIDER:-brave}
+      BRAVE_SEARCH_API_KEY: ${BRAVE_SEARCH_API_KEY:-}
+      SERPAPI_API_KEY: ${SERPAPI_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
     depends_on:
       - postgres
       - redis
@@ -21,6 +27,11 @@ services:
       DATABASE_URL: postgresql+asyncpg://leadhunter:leadhunter@postgres:5432/leadhunter
       REDIS_URL: redis://redis:6379/0
       JWT_SECRET: replace-with-a-long-random-secret
+      SEARCH_PROVIDER: ${SEARCH_PROVIDER:-brave}
+      BRAVE_SEARCH_API_KEY: ${BRAVE_SEARCH_API_KEY:-}
+      SERPAPI_API_KEY: ${SERPAPI_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
     depends_on:
       - postgres
       - redis

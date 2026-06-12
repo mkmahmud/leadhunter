@@ -53,6 +53,7 @@ const defaultKeywords = [
 export function SearchForm() {
   const setJob = useSearchStore((state) => state.setJob);
   const setStatus = useSearchStore((state) => state.setStatus);
+  const setError = useSearchStore((state) => state.setError);
   const { register, handleSubmit, watch, reset, formState } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -72,30 +73,36 @@ export function SearchForm() {
   const preset = watch("preset");
 
   async function submit(values: FormValues) {
-    setStatus("queued");
-    const payload: SearchPayload = {
-      platforms: values.platforms,
-      date_range: { preset: values.preset, start_date: values.start_date, end_date: values.end_date },
-      keywords: values.keywords
-        .split(/\n|,/)
-        .map((item) => item.trim())
-        .filter(Boolean),
-      intent_categories: values.intent_categories,
-      filters: {
-        only_founders: values.only_founders,
-        only_ceos: values.only_ceos,
-        only_ctos: values.only_ctos,
-        only_decision_makers: values.only_decision_makers,
-        must_have_company_domain: values.must_have_company_domain,
-        must_have_email: values.must_have_email,
-        minimum_lead_score: values.minimum_lead_score,
-        country: values.country,
-        industry: values.industry,
-        company_size: values.company_size
-      }
-    };
-    const job = await startSearch(payload);
-    setJob(job.job_id, "running");
+    try {
+      setError(null);
+      setStatus("queued");
+      const payload: SearchPayload = {
+        platforms: values.platforms,
+        date_range: { preset: values.preset, start_date: values.start_date, end_date: values.end_date },
+        keywords: values.keywords
+          .split(/\n|,/)
+          .map((item) => item.trim())
+          .filter(Boolean),
+        intent_categories: values.intent_categories,
+        filters: {
+          only_founders: values.only_founders,
+          only_ceos: values.only_ceos,
+          only_ctos: values.only_ctos,
+          only_decision_makers: values.only_decision_makers,
+          must_have_company_domain: values.must_have_company_domain,
+          must_have_email: values.must_have_email,
+          minimum_lead_score: values.minimum_lead_score,
+          country: values.country,
+          industry: values.industry,
+          company_size: values.company_size
+        }
+      };
+      const job = await startSearch(payload);
+      setJob(job.job_id, "running");
+    } catch (error) {
+      setStatus("failed");
+      setError(error instanceof Error ? error.message : "Search failed");
+    }
   }
 
   return (

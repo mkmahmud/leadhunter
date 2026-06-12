@@ -14,23 +14,28 @@ export function App() {
   const liveLeads = useSearchStore((state) => state.liveLeads);
   const addLead = useSearchStore((state) => state.addLead);
   const status = useSearchStore((state) => state.status);
+  const error = useSearchStore((state) => state.error);
   const setStatus = useSearchStore((state) => state.setStatus);
+  const setError = useSearchStore((state) => state.setError);
 
   useEffect(() => {
     if (!jobId) return;
     const events = createJobEvents(jobId);
     events.onmessage = (message) => {
-      const payload = JSON.parse(message.data) as { type: string; lead?: import("../lib/types").Lead };
+      const payload = JSON.parse(message.data) as { type: string; lead?: import("../lib/types").Lead; error?: string };
       if (payload.type === "lead" && payload.lead) addLead(payload.lead);
       if (payload.type === "completed") {
         setStatus("completed");
         void refetch();
         events.close();
       }
-      if (payload.type === "failed") setStatus("failed");
+      if (payload.type === "failed") {
+        setStatus("failed");
+        setError(payload.error ?? "Search failed");
+      }
     };
     return () => events.close();
-  }, [addLead, jobId, refetch, setStatus]);
+  }, [addLead, jobId, refetch, setError, setStatus]);
 
   const leads = useMemo(() => {
     const persisted = data?.items ?? [];
@@ -53,6 +58,7 @@ export function App() {
           <div>
             <div className="text-sm font-semibold">{leads.length.toLocaleString()} leads</div>
             <div className="text-xs capitalize text-muted">Status: {status}</div>
+            {error && <div className="mt-1 max-w-[560px] text-xs font-medium text-red-700">{error}</div>}
           </div>
           <div className="flex gap-2">
             <IconButton title="Refresh leads" onClick={() => void refetch()}>

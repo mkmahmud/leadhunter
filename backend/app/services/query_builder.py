@@ -33,6 +33,8 @@ PLATFORM_HINTS: dict[Platform, str] = {
 def build_queries(request: SearchRequest, platform: Platform) -> list[str]:
     keywords = request.keywords or BASE_INTENTS
     categories = [category.value for category in request.intent_categories] or [IntentCategory.web_development.value]
+    if platform in {Platform.github, Platform.hackernews}:
+        return [f'"{keyword}" "{category}" founder OR CEO OR CTO OR owner' for keyword in keywords for category in categories[:3]][:8]
     platform_hint = PLATFORM_HINTS[platform]
     queries: list[str] = []
     for keyword in keywords:

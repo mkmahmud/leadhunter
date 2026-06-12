@@ -18,11 +18,23 @@ class Settings(BaseSettings):
     cors_origins: list[str] = ["http://localhost:5173"]
     cors_origin_regex: str | None = r"chrome-extension://.*"
     openai_api_key: str | None = None
+    search_provider: Literal["brave", "serpapi"] = "brave"
+    brave_search_api_key: str | None = None
+    serpapi_api_key: str | None = None
     search_provider_api_key: str | None = None
     github_token: str | None = None
     reddit_client_id: str | None = None
     reddit_client_secret: str | None = None
+    max_results_per_query: int = Field(default=10, ge=1, le=50)
     rate_limit_default: str = "120/minute"
+
+    @property
+    def active_search_api_key(self) -> str | None:
+        if self.search_provider == "brave":
+            return self.brave_search_api_key or self.search_provider_api_key
+        if self.search_provider == "serpapi":
+            return self.serpapi_api_key or self.search_provider_api_key
+        return self.search_provider_api_key
 
     @field_validator("cors_origins", mode="before")
     @classmethod

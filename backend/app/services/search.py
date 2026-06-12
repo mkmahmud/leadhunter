@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.repositories.leads import LeadRepository
 from app.repositories.search_jobs import SearchJobRepository
 from app.schemas.leads import LeadRead, SearchRequest
+from app.scrapers.errors import ScraperConfigurationError
 from app.scrapers.registry import SCRAPERS
 from app.services.ai import AILeadAnalyzer
 from app.services.enrichment import LeadEnrichmentService
@@ -54,9 +55,12 @@ class SearchService:
             await self.session.commit()
             await broker.publish(f"job:{job_id}", {"type": "completed", "job_id": job_id})
         except Exception as exc:
-            await self.jobs.mark_failed(job, str(exc))
+            message = str(exc)
+            if isinstance(exc, ScraperConfigurationError):
+                message = f"Configuration error: {message}"
+            await self.jobs.mark_failed(job, message)
             await self.session.commit()
-            await broker.publish(f"job:{job_id}", {"type": "failed", "error": str(exc)})
+            await broker.publish(f"job:{job_id}", {"type": "failed", "error": message})
 
     def _passes_filters(self, website: str, email: str, score: int, role: str, request: SearchRequest) -> bool:
         filters = request.filters
